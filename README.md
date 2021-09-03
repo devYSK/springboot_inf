@@ -498,3 +498,45 @@ server.http2.enabled=true
 
 * 또는 spring-boot-starter-undertow 추가
 
+* 아니면 톰캣과 자바버전을 다르게 ! 
+  * 톰캣 HTTP2
+  * JDK9와 Tomcat 9+ 추천
+  *  그 이하는 아래 링크 참고
+  * https://docs.spring.io/spring-boot/docs/current/reference/html/howto-embedded-web-servers.html#howto-configure-http2-tomcat
+
+# 독립적으로 실행 가능한 JAR
+* https://docs.spring.io/spring-boot/docs/current/reference/html/executable-jar.html
+“그러고 보니 JAR 파일 하나로 실행할 수 있네?”
+* mvn package를 하면 실행 가능한 JAR 파일 “하나가" 생성 됨.
+* spring-maven-plugin이 해주는 일 (패키징)
+* 과거 “uber”는 jar 를 사용
+  * 모든 클래스 (의존성 및 애플리케이션)를 하나로 압축하는 방법
+  * 뭐가 어디에서 온건지 알 수가 없음
+    * 무슨 라이브러리를 쓰는건지..
+  * 내용은 다르지만 이름이 같은 파일은 또 어떻게?
+  * 스프링 부트의 전략
+    * 내장 JAR : 기본적으로 자바에는 내장 JAR를 로딩하는 표준적인 방법이 없음.
+
+* 자바에는 jar안에 있는 jar파일을 읽을 수 있는 표준적인 방법이 없다. 
+  * 애플리케이션 클래스와 라이브러리 위치 구분
+  * org.springframework.boot.loader.jar.JarFile을 사용해서 내장 JAR를 읽는다.
+  * org.springframework.boot.loader.Launcher를 사용해서 실행한다.
+  * war, properties 런처도 있다. 
+
+
+
+> 모든 의존성 및 라이브러리(jar파일들)도 하나의 jar로 합친다. 
+
+* 의존성 관리
+  * springboot-starter 가 의존성 관리 
+    * pom.xml 의 <parent></parent> 를 타고 올라가다 보면 springboot Dependencies가 있다 여기서 다 관리해준다 
+  * 이것만 넣어도 이만큼이나 다 알아서 가져오네?
+
+* 자동 설정
+  * @EnableAutoConfiguration이 뭘 해주는지 알겠어.
+* 내장 웹 서버
+  * 아 스프링 부트가 서버가 아니라 내장 서버를 실행하는 거군.
+* 독립적으로 실행 가능한 JAR
+  * spring-boot-maven 플러그인이 이런걸 해주는구나..
+
+
