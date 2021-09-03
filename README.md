@@ -353,3 +353,148 @@ public class HoloManConfiguration {
     * TomcatServletWebServerFactoryCustomizer (서버 커스터마이징)
   * DispatcherServletAutoConfiguration
     * 서블릿 만들고 등록
+
+## 스프링부트가 내장 웹서버 실행시키는 코드
+
+* 이런 방식으로 스프링부트 내에서 돌아간다 .
+
+```java
+public static void main(String[] args) throws LifecycleException {
+//		SpringApplication.run(SpringbootApplication.class, args);
+
+		Tomcat tomcat = new Tomcat();
+		tomcat.setPort(8080);
+
+		Context context = tomcat.addContext("/", "/");
+
+
+		HttpServlet httpServlet = new HttpServlet() {
+			@Override
+			protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+				PrintWriter writer = resp.getWriter();
+
+				writer.println("<html><head><title>");
+				writer.println("Hey, Tomcat");
+				writer.println("</title></head>");
+				writer.println("<body><h1>Hello Tomcat</h1></body>");
+				writer.println("</html>");
+			}
+		};
+
+		String servletName = "helloServlet";
+		tomcat.addServlet("/", servletName, httpServlet);
+		context.addServletMappingDecoded("/hello", servletName);
+
+
+		tomcat.start();
+
+		tomcat.getServer().await();
+
+	}
+```
+
+# 내장 웹 서버 응용 1부: 컨테이너와 서버 포트
+* https://docs.spring.io/spring-boot/docs/current/reference/html/howto-embedded-web-servers.html
+
+* 다른 서블릿 컨테이너로 변경
+* 웹 서버 사용 하지 않기
+* 포트
+  * server.port
+  * 랜덤 포트
+  * ApplicationListener<ServletWebServerInitializedEvent>
+
+```java
+
+@Component
+public class PortListener implements ApplicationListener<ServletWebServerInitializedEvent> {
+    @Override
+    public void onApplicationEvent(ServletWebServerInitializedEvent servletWebServerInitializedEvent) {
+        ServletWebServerApplicationContext applicationContext = servletWebServerInitializedEvent.getApplicationContext();
+        System.out.println(applicationContext.getWebServer().getPort());
+    }
+}
+```
+
+# 내장 웹 서버 응용 2부: HTTPS와 HTTP2, SSL 세팅 
+
+* https://opentutorials.org/course/228/4894
+* https://gist.github.com/keesun/f93f0b83d7232137283450e08a53c4fd
+
+* HTTPS 설정하기
+  * 키스토어 만들기
+  * HTTP는 못쓰네?
+* HTTP 커넥터는 코딩으로 설정하기
+  * https://github.com/spring-projects/spring-boot/tree/v2.0.3.RELEASE/spring-boot-samples/spring-boot-sample-tomcat-multi-connectors
+* HTTP2 설정
+  * server.http2.enable
+  * 사용하는 서블릿 컨테이너 마다 다름
+
+
+## HTTPS
+* HTTPS를 만들라면 키스토어가 필요하다 
+* 쉘 로 키스토어를 받고, properties 설정을 해줘야 한다. 
+* 
+* 쉘 명령어
+  * ```shell
+    keytool -genkey 
+    -alias tomcat 
+    -storetype PKCS12 
+    -keyalg RSA 
+    -keysize 2048 
+    -keystore keystore.p12 
+    -validity 4000    
+    ```
+    * ![](img/a9abe809.png)
+
+* properties 설정 
+```properties
+server.ssl.key-store: keystore.p12
+server.ssl.key-store-password: 123456
+server.ssl.keyStoreType: PKCS12
+server.ssl.keyAlias: spring // -alias 옵션에 넣은것 
+```
+
+* 이러면 모든 요청은 https으로 요청해야한다. 
+  * 이러면 http는 못쓴다. 
+
+* https, http 둘다 쓰려면 ???
+
+> HTTP 커넥터(연결해주는)는 하나인데,HTTPS 설정을 해버리면 HTTP 요청을 받을 수 없다.  
+새로운 커넥터를 코딩으로 설정해서 HTTP 요청을 총 2개의 커넥터로 HTTP 요청도 받을 수 있다.
+
+* `커넥터를 만들어 주면 된다`
+  * 이러면 포트번호는 다르지만, http, https 둘 다 받을 수 있다. 
+
+```java
+@SpringBootApplication
+public class SpringbootApplication {
+
+	public static void main(String[] args) throws LifecycleException {
+		SpringApplication.run(SpringbootApplication.class, args);
+	}
+
+	@Bean
+	public ServletWebServerFactory serverFactory() {
+		TomcatServletWebServerFactory tomcatFactory = new TomcatServletWebServerFactory();
+		tomcatFactory.addAdditionalTomcatConnectors(createStandardConnect());
+		return tomcatFactory;
+	}
+
+	private Connector createStandardConnect() {
+		Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+		connector.setPort(8090); // properties에서 설정한 원래 포트번호와 다르게 설정
+		
+		return connector;
+	}
+}
+```
+
+## https 설정
+* properties 파일에서 설정
+```properties
+server.http2.enabled=true 
+```
+
+* 또는 spring-boot-starter-undertow 추가
+
