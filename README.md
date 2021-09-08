@@ -540,3 +540,143 @@ server.http2.enabled=true
   * spring-boot-maven 플러그인이 이런걸 해주는구나..
 
 
+
+# 스프링 부트 활용
+### 3부에서는 스프링 부트가 제공하는 여러 기능을 사용하며 원하는대로 커스터마이징 하는 방법을 학습합니다.
+
+
+# 스프링 부트 활용 소개
+
+
+|스프링 부트 핵심 기능| 각종 기술 연동|
+|---|---|
+|● SpringApplication | ● 스프링 웹 MVC
+|● 외부 설정 | ● 스프링 데이터
+|● 프로파일 | ● 스프링 시큐리티
+|● 로깅 | ● REST API 클라이언트
+|● 테스트 | ● 다루지 않은 내용들
+|● Spring-Dev-Tools |
+
+
+# SpringApplication
+
+* https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-spring-application.html#boot-features-application-events-and-listeners
+* ApplicationEvent 등록
+  * ApplicationContext를 `만들기 전에 사용하는 리스너`는 @Bean으로 등록할 수 없다.
+    * 빈으로 등록해도 리스너가 동작을 하지 않는다. ApllicationContext가 만들어지기 전이기 때문에 
+    * 이런경우엔 직접 등록을 해줘야 한다 어떻게? 
+      * SpringApplication.addListeners()
+      * ```java
+        @SpringBootApplication
+        public class SpringbootApplication {
+
+        public static void main(String[] args) throws LifecycleException {
+
+          SpringApplication springApplication = new SpringApplication(SpringApplication.class);
+          springApplication.addListeners(new SampleListener());
+          springApplication.run(args);
+          }
+
+        }
+
+        ```
+
+* WebApplicationType 설정
+* 애플리케이션 아규먼트 사용하기
+  * ApplicationArguments를 빈으로 등록해 주니까 가져다 쓰면 됨.
+* 애플리케이션 실행한 뒤 뭔가 실행하고 싶을 때
+  * ApplicationRunner (추천) 또는 CommandLineRunner
+  * 순서 지정 가능 @Order
+
+# 21. 외부 설정 1부 (스프링 부트 외부 설정)
+
+https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-external-config
+사용할 수 있는 외부 설정
+* properties
+* YAML
+* 환경 변수
+* 커맨드 라인 아규먼트
+
+## application.properties
+* key-value 형태로 값을 정의하여 참조하여 사용 가능 
+
+```properties
+youngsoo.name = youngsoo
+...
+```
+
+```java
+@Component
+public class SampleRunner implements ApplicationRunner {
+    
+  @Value("${youngsoo.name}")
+  private String name;
+}
+```
+### test에서 application.properties 참조하기
+* import org.springframework.core.env.Environment;
+```java
+@SpringBootTest
+class SpringbootApplicationTests {
+
+    @Autowired
+    Environment environment;
+
+    @Test
+    void contextLoads() {
+        assertThat(environment.getProperty("youngsoo.name"))
+                .isEqualTo("youngsoo");
+    }
+
+}
+```
+* 테스트  resources 아래의 properties가 기본 properties에 덮어씌워 테스트 properties가 쓰
+  * 기본 application.properties < test_resources_application.properties  
+* 테스트 코드 실행시 빌드 순서
+  1. main.java 아래의 소스 빌드 후 target - classes로 들어감
+  2. test.java 아래의 소스 빌드 후 target - classes로 들어감. 
+ 
+
+
+프로퍼티 우선 순위
+1. 유저 홈 디렉토리에 있는 spring-boot-dev-tools.properties
+2. 테스트에 있는 @TestPropertySource
+   * @TestPropertySource(properties = "youngsoo.name=youngsoo1")
+   * @TestPropertySource(location = "classpath:/test.properties")
+     * test/resources/test.properties를 만들어야 불러와서 사용한. 
+3. @SpringBootTest 애노테이션의 properties 애트리뷰트
+   * @SpringBootTest(properties = "youngsoo.name=youngsoo2")
+4. 커맨드 라인 아규먼트
+   * java -jar target/springinit-SNAPSHOT.jar --youngsoo.name=youngsoo (jar 파일에 옵션줌)
+5. SPRING_APPLICATION_JSON (환경 변수 또는 시스템 프로티) 에 들어있는
+   프로퍼티
+6. ServletConfig 파라미터
+7. ServletContext 파라미터
+8. java:comp/env JNDI 애트리뷰트
+9. System.getProperties() 자바 시스템 프로퍼티
+10. OS 환경 변수
+11. RandomValuePropertySource
+12. JAR 밖에 있는 특정 프로파일용 application properties
+13. JAR 안에 있는 특정 프로파일용 application properties
+14. JAR 밖에 있는 application properties
+15. JAR 안에 있는 application properties
+16. @PropertySource
+17. 기본 프로퍼티 (SpringApplication.setDefaultProperties)
+
+* ### application.properties 우선 순위 (높은게 낮은걸 덮어 씁니다.)
+1. file:./config/
+2. file:./
+3. classpath:/config/
+4. classpath:/
+
+* 랜덤값 설정하기
+   * ${random.*}
+   * `프로퍼티 재사용 (플레이스 홀더)`
+   * ```properties
+     youngsoo.name = youngsoo
+     youngsoo.fullname = ${youngsoo.name} kim
+     ```
+   * name = youngsoo
+   * fullName = ${name} kim
+
+

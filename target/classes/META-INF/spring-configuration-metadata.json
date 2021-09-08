@@ -1,0 +1,22 @@
+{
+  "groups": [
+    {
+      "name": "holoman",
+      "type": "com.ys.springboot.HolomanProperties",
+      "sourceType": "com.ys.springboot.HolomanProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "holoman.how-long",
+      "type": "java.lang.Integer",
+      "sourceType": "com.ys.springboot.HolomanProperties"
+    },
+    {
+      "name": "holoman.name",
+      "type": "java.lang.String",
+      "sourceType": "com.ys.springboot.HolomanProperties"
+    }
+  ],
+  "hints": []
+}

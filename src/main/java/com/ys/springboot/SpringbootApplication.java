@@ -22,7 +22,15 @@ import java.io.PrintWriter;
 public class SpringbootApplication {
 
 	public static void main(String[] args) throws LifecycleException {
+//
+//		SpringApplication springApplication = new SpringApplication(SpringApplication.class);
+//		springApplication.addListeners(new SampleListener());
+//		springApplication.run(args);
+
 		SpringApplication.run(SpringbootApplication.class, args);
+
+
+
 	}
 
 }
