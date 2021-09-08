@@ -679,4 +679,57 @@ class SpringbootApplicationTests {
    * name = youngsoo
    * fullName = ${name} kim
 
+# 외부 설정 2부
+* 다음 의존성 추가 후 빌드
+* ```xml
+  <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+  </dependency>
+  ```
+* 프로퍼티 클래스 작성
+
+```java
+@Getter @Setter
+@Component
+@ConfigurationProperties("youngsoo")
+public class YoungsooProperties {
+    private String name;
+    private int age;
+    private String fullName;
+}
+```
+
+* @EnableConfigurationProperties 설정
+```java
+@SpringBootApplication
+@EnableConfigurationProperties(YoungsooProperties.class)
+public class SpringbootApplication {
+}
+```
+
+* 이러면 YoungsooProperties 인스턴스() 주입받아 사용 가능
+
+
+타입-세이프 프로퍼티 @ConfigurationProperties
+  * 여러 프로퍼티를 묶어서 읽어올 수 있음
+  * 빈으로 등록해서 다른 빈에 주입할 수 있음
+    * @EnableConfigurationProperties
+    * @Component
+    * @Bean
+  * 융통성 있는 바인딩(클래스 내의 필드이름에 바인 )
+    * context-path (케밥)
+    * context_path (언드스코어)
+    * contextPath (캐멀)
+    * CONTEXTPATH   
+  * 프로퍼티 타입 컨버전
+    * @DurationUnit
+  * 프로퍼티 값 검증
+    * @Validated 사용
+    * JSR-303 (@NotNull, ...) 을 지원한다. 
+  * 메타 정보 생성
+  * @Value
+    * SpEL 을 사용할 수 있지만...
+    * 위에 있는 기능들은 전부 사용 못합니다
+
 

@@ -6,6 +6,7 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 @SpringBootApplication
+@EnableConfigurationProperties(YoungsooProperties.class)
 public class SpringbootApplication {
 
 	public static void main(String[] args) throws LifecycleException {

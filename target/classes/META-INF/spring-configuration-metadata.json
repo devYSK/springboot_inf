@@ -4,6 +4,11 @@
       "name": "holoman",
       "type": "com.ys.springboot.HolomanProperties",
       "sourceType": "com.ys.springboot.HolomanProperties"
+    },
+    {
+      "name": "youngsoo",
+      "type": "com.ys.springboot.YoungsooProperties",
+      "sourceType": "com.ys.springboot.YoungsooProperties"
     }
   ],
   "properties": [
@@ -16,6 +21,21 @@
       "name": "holoman.name",
       "type": "java.lang.String",
       "sourceType": "com.ys.springboot.HolomanProperties"
+    },
+    {
+      "name": "youngsoo.age",
+      "type": "java.lang.Integer",
+      "sourceType": "com.ys.springboot.YoungsooProperties"
+    },
+    {
+      "name": "youngsoo.full-name",
+      "type": "java.lang.String",
+      "sourceType": "com.ys.springboot.YoungsooProperties"
+    },
+    {
+      "name": "youngsoo.name",
+      "type": "java.lang.String",
+      "sourceType": "com.ys.springboot.YoungsooProperties"
     }
   ],
   "hints": []
