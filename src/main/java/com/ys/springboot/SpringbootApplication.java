@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 @SpringBootApplication
-@EnableConfigurationProperties(YoungsooProperties.class)
+//@EnableConfigurationProperties(YoungsooProperties.class)
 public class SpringbootApplication {
 
 	public static void main(String[] args) throws LifecycleException {
