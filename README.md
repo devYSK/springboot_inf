@@ -805,3 +805,47 @@ public class BaseConfiguration {
 로거를 Log4j2로 변경하기
 * https://docs.spring.io/spring-boot/docs/current/reference/html/howto-logging.html#howto-configure-log4j-for-logging
 
+
+# 테스트
+시작은 일단 spring-boot-starter-test 라이브러리를 추가하는 것 부터
+* test 스콥으로 추가.
+
+## @SpringBootTest
+* @RunWith(SpringRunner.class)랑 같이 써야 함. (junit4 기준)
+* 빈 설정 파일은 설정을 안해주나? 알아서 찾습니다. (@SpringBootApplication)
+* webEnvironment => @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+  * MOCK: mock servlet environment. 내장 톰캣 구동 안 함.
+  * RANDON_PORT, DEFINED_PORT: 내장 톰캣 사용 함.
+  * NONE: 서블릿 환경 제공 안 함.
+## @MockBean
+* ApplicationContext에 들어있는 빈을 Mock으로 만든 객체로 교체 함.
+* 모든 @Test 마다 자동으로 리셋.
+## 슬라이스 테스트
+* 레이어 별로 잘라서 테스트하고 싶을 때
+* @JsonTest
+* @WebMvcTest
+* @WebFluxTest
+* @DataJpaTest
+* ...
+
+# Spring-Boot-Devtools
+* https://docs.spring.io/spring-boot/docs/2.1.5.RELEASE/reference/html/using-boot-devtools.html
+* 소스
+  * https://github.com/spring-projects/spring-boot/blob/v2.1.5.RELEASE/spring-boot-project/spring-boot-devtools/src/main/java/org/springframework/boot/devtools/env/DevToolsPropertyDefaultsPostProcessor.java
+
+
+* 캐시 설정을 개발 환경에 맞게 변경가능.
+  * 기본적으로  캐시설정을 다 끈다. 
+* `클래스패스에 있는 파일이 변경 될 때마다 자동으로 재시작.`
+  * 직접 껐다 켜는거 (cold starts)보다 빠른다. 왜?
+  * 릴로딩 보다는 느리다. (JRebel 같은건 아님)
+  * 리스타트 하고 싶지 않은 리소스는? spring.devtools.restart.exclude
+  * 리스타트 기능 끄려면? spring.devtools.restart.enabled = false
+* 라이브 릴로드? 리스타트 했을 때 브라우저 자동 리프레시 하는 기능
+  * 브라우저 플러그인 설치해야 함.
+  * 라이브 릴로드 서버 끄려면? spring.devtools.liveload.enabled = false
+* 글로벌 설정
+  * ~/.spring-boot-devtools.properties
+* 리모트 애플리케이션 기능. 운영용으론 쓰지마라
+
+
