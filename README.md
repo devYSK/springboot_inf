@@ -708,7 +708,7 @@ public class SpringbootApplication {
 }
 ```
 
-* 이러면 YoungsooProperties 인스턴스() 주입받아 사용 가능
+* 이러면 YoungsooProperties 인스턴스를 빈으로 주입받아 사용 가능
 
 
 타입-세이프 프로퍼티 @ConfigurationProperties
@@ -732,4 +732,31 @@ public class SpringbootApplication {
     * SpEL 을 사용할 수 있지만...
     * 위에 있는 기능들은 전부 사용 못합니다
 
+# 프로파일 (profile) 설정 
 
+@Profile 애노테이션은 어디에?
+* @Configuration
+* @Component
+
+어떤 프로파일을 활성화 할 것인가?
+* spring.profiles.active
+  * application-properties 파일 안에 profile 이름 설정
+    * ex) spring.profiles.active=prod 
+
+어떤 프로파일을 추가할 것인가?
+* spring.profiles.include
+
+프로파일용 프로퍼티
+* application-{profile}.properties
+
+```java
+@Profile("prod") // application.properties 내에 spring.profiles.active=prod 설정 해야 작동 
+@Configuration
+public class BaseConfiguration {
+
+    @Bean
+    public String hello() {
+        return "hello";
+    }
+}
+```
