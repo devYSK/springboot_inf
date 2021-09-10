@@ -1245,3 +1245,66 @@ spring.datasource.password=password
 
 
 
+# 스프링 데이터 9부: Redis
+### 캐시, 메시지 브로커, 키/밸류 스토어 등으로 사용 가능.
+
+## 의존성 추가
+* spring-boot-starter-data-redis
+
+## Redis 설치 및 실행 (도커) 명령어
+* docker run -p 6379:6379 --name redis_boot -d redis
+* docker exec -i -t redis_boot redis-cli
+
+## 스프링 데이터 Redis
+* https://projects.spring.io/spring-data-redis/
+* StringRedisTemplate 또는 RedisTemplate 사용하여 사용 가능 
+* extends CrudRepository < jpa 사용하듯이 사용 
+
+```java
+@Component
+@RequiredArgsConstructor
+public class RedisRunner implements ApplicationRunner {
+
+    private final StringRedisTemplate stringRedisTemplate;
+    
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        ValueOperations<String, String> value = stringRedisTemplate.opsForValue();
+
+        value.set("youngsoo", "devysk");
+        value.set("springboot","2.5?");
+        value.set("hello","world");
+    }
+}
+```
+
+## Redis 주요 커맨드
+* https://redis.io/commands
+* keys *
+* get {key}
+* hgetall {key}
+* hget {key} {column}
+
+## 커스터마이징
+* properties 파일에 설정
+* spring.redis.*
+
+# 프링 데이터 10부: MongoDB
+MongoDB는 JSON 기반의 도큐먼트 데이터베이스입니다.
+
+## 의존성 추가
+* spring-boot-starter-data-mongodb
+
+## MongoDB 설치 및 실행 (도커)
+ docker run -p 27017:27017 --name mongo_boot -d mongo
+* docker exec -i -t mongo_boot bash
+* mongo
+
+## 스프링 데이터 몽고DB
+* MongoTemplate
+* MongoRepository
+* 내장형 MongoDB (테스트용)
+  * de.flapdoodle.embed:de.flapdoodle.embed.mongo
+* @DataMongoTest
+
+
