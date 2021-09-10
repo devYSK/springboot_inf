@@ -1102,3 +1102,146 @@ public class WebConfig implements WebMvcConfigurer {
     }
 }
 ```
+
+
+# 스프링 데이터 1부: 소개
+## SQL DB NoSQL
+* 인메모리 데이터베이스 지원
+* DataSource 설정
+* DBCP 설정
+* JDBC 사용하기
+* 스프링 데이터 JPA 사용하기
+* jOOQ 사용하기
+* 데이터베이스 초기화
+* 데이터베이스 마이그레이션 툴 연동하기
+
+## NoSQL
+* Redis (Key/Value)
+* MongoDB (Document)
+* Neo4J (Graph)
+* Gemfire (IMDG)
+* Solr (Search)
+* Elasticsearch (Search & Analytics)
+* Cassandra
+* Couchbase
+* LDAP
+* InfluxDB
+
+
+# `데이터베이스 접속 정보(DB 접속정보)를 properties에서 관리하는법`
+
+* 정보를 지금처럼 properties에 넣어서 쓰시지만, prod 용 프로퍼티 파일은 버전관리에서 빼고, prod 서버에서 만들어 제공하는 방법도 있을 수 있겠구요.
+
+* 또는 아에 프로퍼티 파일에서 해당 정보는 빼고, prod에서 서버를 띄울 때 해당 서버의 환경 변수에 그 값들을 넣어두면 스프링 부트는 그걸 더 높은 우선 순위로 여겨 그 값을 사용할테니 그것도 역시 또 다른 방법이 될 수 이습니다.
+
+* 또는 spring cloud config라는 걸 이용해서 설정값들을 원격으로 관리하는 방법이 있고요.
+
+* 이상적으로는 spring (cloud) vault라고 시크릿 저장소를 이용하는 방법이 있습니다. spring config랑 spring vault는 대신 좀 더 학습이 필요하겠죠.
+
+# 다중 DB 접속 방법(여러, 다중 데이터베이스 접속)
+
+* 각 DB에 해당하는 DataSource그리고 PlatformTransactionManager 등을 빈으로 설정해야 하며(또는 프로퍼티로) 그리고 스프링 데이터 JPA가 제공하는 @EnableJpaRepository에 보시면 transactionManagerRef라는 속성이 있습니다. 거기에 실제 사용할 PTM을 연결해주면 됩니다.
+
+* 자세한건 이 글을 참고해 보세요.
+
+* https://medium.com/@joeclever/using-multiple-datasources-with-spring-boot-and-spring-data-6430b00c02e7
+
+이 질문은 간간히 계속 올라오는데.. 나중에 보강을 해두는게 좋을거 같네요. 감사합니다.
+
+
+# 스프링 데이터 2부: 인메모리 데이터베이스
+지원하는 인-메모리 데이터베이스
+* `H2 (추천, 콘솔 때문에...)`
+* HSQL
+* Derby
+
+## Spring-JDBC가 클래스패스에 있으면 자동 설정이 필요한 빈을 설정 해줍니다.
+* DataSource
+* JdbcTemplate
+
+## 인-메모리 데이터베이스 기본 연결 정보 확인하는 방법
+* URL: “testdb”
+* username: “sa”
+* password: “”
+
+## H2 콘솔 사용하는 방법
+* spring-boot-devtools를 추가하거나...
+* spring.h2.console.enabled=true 만 추가.
+* /h2-console로 접속 (이 path도 바꿀 수 있음)
+
+실습 코드
+* CREATE TABLE USER (ID INTEGER NOT NULL, name VARCHAR(255), PRIMARY
+KEY (id))
+* INSERT INTO USER VALUES (1, ‘keesun’)
+
+
+# 스프링 데이터 3부: MySQL
+지원하는 DBCP
+1. HikariCP (기본)
+  * https://github.com/brettwooldridge/HikariCP#frequently-used
+2. Tomcat CP
+3. Commons DBCP2
+
+DBCP 설정
+* spring.datasource.hikari.*
+* spring.datasource.tomcat.*
+* spring.datasource.dbcp2.*
+
+## MySQL 커넥터 의존성 추가
+```xml
+<dependency>
+<groupId>mysql</groupId>
+<artifactId>mysql-connector-java</artifactId>
+</dependency>
+```
+
+
+## MySQL 추가 (도커 사용)
+* docker run -p 3306:3306 --name mysql_boot -e MYSQL_ROOT_PASSWORD=1 -e  
+MYSQL_DATABASE=springboot -e MYSQL_USER=keesun -e   
+MYSQL_PASSWORD=pass -d mysql
+* docker exec -i -t mysql_boot bash
+* mysql -u root -p
+## MySQL용 Datasource 설정
+* spring.datasource.url=jdbc:mysql://localhost:3306/springboot?useSSL=false
+* spring.datasource.username=keesun
+* spring.datasource.password=pass
+
+
+# 스프링 데이터 6부: Spring-Data-JPA 연동
+스프링 데이터 JPA 의존성 추가
+```xml
+<dependency>
+<groupId>org.springframework.boot</groupId>
+<artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+```
+스프링 데이터 JPA 사용하기
+* @Entity 클래스 만들기
+* Repository 만들기
+
+## 스프링 데이터 리파지토리 테스트 만들기
+* H2 DB를 테스트 의존성에 추가하기
+* @DataJpaTest (슬라이스 테스트) 작성
+
+* properties
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/dbname
+spring.datasource.username=youngsoo
+spring.datasource.password=password 
+```
+
+
+# 스프링 데이터 7부: 데이터베이스 초기화
+
+## JPA를 사용한 데이터베이스 초기화
+* spring.jpa.hibernate.ddl-auto
+* spring.jpa.generate-dll=true로 설정 해줘야 동작함.
+
+## SQL 스크립트를 사용한 데이터베이스 초기화
+* schema.sql 또는 schema-${platform}.sql
+* data.sql 또는 data-${platform}.sql
+* ${platform} 값은 spring.datasource.platform 으로 설정 가능
+
+
+
