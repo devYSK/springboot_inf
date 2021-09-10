@@ -913,3 +913,192 @@ HTTP 요청 본문을 객체로 변경하거나, 객체를 HTTP 응답 본문으
     ```
   * /m/** 로 오는 요청이 오면 classpath:/m/ 밑에서 제공하겠다.
     * 반드시 / 슬래시로 끝나야 한다. 
+
+# 스프링 웹 MVC 5부: 웹JAR
+* 클라이언트에서 사용하는 자바스크립트 라이브러리 등(제이쿼리, 부트스트랩, 리액트)등도 다 jar 파일로 추가하여 사용할 수 있다.
+* maven, gradle 등
+
+웹JAR 맵핑 “/webjars/**”
+* 버전 생략하고 사용하려면
+  * webjars-locator-core 의존성 추가
+
+
+# 스프링 웹 MVC 6부: index 페이지와 파비콘
+웰컴 페이지
+* classpath:/static
+  * classpath:/public
+  * classpath:/resources/
+  * classpath:/META-INF/resources
+  * 이 네가지 위치중 아무대나 index.html을 두면 된다. 
+
+* index.html 찾아 보고 있으면 제공.
+* index.템플릿 찾아 보고 있으면 제공.
+* 둘 다 없으면 에러 페이지.
+
+### 파비콘
+* favicon.ico
+* 파이콘 만들기 https://favicon.io/
+* 파비콘이 안 바뀔 때?
+  * https://stackoverflow.com/questions/2208933/how-do-i-force-a-favicon-refresh
+
+# 스프링 웹 MVC 7부: Thymeleaf
+스프링 부트가 자동 설정을 지원하는 템플릿 엔진들 (html, SSR 프론트엔드)
+* FreeMarker
+* Groovy
+* Thymeleaf
+* Mustache
+
+
+## JSP를 권장하지 않는 이유
+* JAR 패키징 할 때는 동작하지 않고, WAR 패키징 해야 함.
+* Undertow는 JSP를 지원하지 않음.
+* https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-jsp-limitations
+
+## Thymeleaf 사용하기
+* https://www.thymeleaf.org/
+* https://www.thymeleaf.org/doc/articles/standarddialect5minutes.html
+* 의존성 추가: spring-boot-starter-thymeleaf
+* 템플릿 파일 위치: /src/main/resources/template/
+* `예제:
+https://github.com/thymeleaf/thymeleafexamples-stsm/blob/3.0-master/src/main/web
+app/WEB-INF/templates/seedstartermng.html`
+
+# 스프링 웹 MVC 8부: HtmlUnit
+HTML 템플릿 뷰 테스트를 보다 전문적으로 하자.
+* 공식문서 참조
+  * http://htmlunit.sourceforge.net/
+  * http://htmlunit.sourceforge.net/gettingStarted.html
+* 의존성 추가
+```xml
+<dependency>
+  <groupId>org.seleniumhq.selenium</groupId>
+  <artifactId>htmlunit-driver</artifactId>
+  <scope>test</scope>
+</dependency>
+<dependency>
+  <groupId>net.sourceforge.htmlunit</groupId>
+  <artifactId>htmlunit</artifactId>
+  <scope>test</scope>
+</dependency>
+```
+
+* @Autowire WebClient
+
+
+# 스프링 웹 MVC 9부: ExceptionHandler
+스프링 @MVC 예외 처리 방법
+* @ControllerAdvice
+  * 에러를 전역적으로 사용하고 싶다면 사용
+  * 클래스를 생성하고 @ControllerAdivce를 설정 
+  * 클래스 안에다가 ExceptionHandler를 정의하면 된다. 
+```java
+@RestController
+public class SampleController {
+
+    @GetMapping("/hello")
+    public String hello() {
+        throw new SampleException();
+    }
+
+    @ExceptionHandler(SampleException.class)
+    public @ResponseBody AppError sampleError(SampleException e) {
+        AppError appError = new AppError();
+        appError.setMessage("error.app.key");
+        appError.setReaseon("IDK IDK IDK"); //  I don`t know
+        return appError;
+    }
+}
+
+@Getter @Setter
+public class AppError {
+    private String message;
+    private String reason;
+}
+
+```
+
+* @ExchangepHandler
+
+스프링 부트가 제공하는 기본 예외 처리기
+* BasicErrorController
+  * HTML과 JSON 응답 지원
+
+* 커스터마이징 방법
+  * ErrorController 구현
+
+커스텀 에러 페이지
+* 상태 코드 값에 따라 에러 페이지 보여주기
+* src/main/resources/static 이나 template/error/ 에다가 
+  * 404.html 페이지 작성
+  * 5xx.html 페이지 작성
+* ErrorViewResolver 구현
+
+
+# 프링 웹 MVC 10부: Spring HATEOAS
+Hypermedia As The Engine Of Application State
+
+* 서버: 현재 리소스와 연관된 링크 정보를 클라이언트에게 제공한다.
+* 클라이언트: 연관된 링크 정보를 바탕으로 리소스에 접근한다.
+* 연관된 링크 정보
+  * Relation
+  * Hypertext Reference)
+* spring-boot-starter-hateoas 의존성 추가
+
+* hateoas 공식문서 및 사용법. 순서대로 
+  * https://spring.io/understanding/HATEOAS
+  * https://spring.io/guides/gs/rest-hateoas/
+  * https://docs.spring.io/spring-hateoas/docs/current/reference/html/
+
+---
+* Resource -> EntityModel 로 변경
+* ControllerLinkBuilder -> WebMvcLinkBuilder로 변경
+
+* ResourceSupport is now RepresentationModel
+
+* Resource is now EntityModel
+
+* Resources is now CollectionModel
+
+* PagedResources is now PagedModel
+
+
+## ObjectMapper 제공
+* spring.jackson.*
+* Jackson2ObjectMapperBuilder
+
+## LinkDiscovers 제공
+* 클라이언트 쪽에서 링크 정보를 Rel 이름으로 찾을때 사용할 수 있는 XPath 확장클래스
+
+
+# 스프링 웹 MVC 11부: CORS
+
+* 읽어보면 좋은글 : https://evan-moon.github.io/2020/05/21/about-cors/
+
+
+SOP과 CORS
+* Single-Origin Policy (같은 origin에만 보낼 수 있다.)
+* Cross-Origin Resource Sharing (서로 다른 origin끼리 공유할 수 있는 표준)
+* Origin이란?
+  * URI 스키마 (http, https)
+  * hostname (whiteship.me, localhost)
+  * 포트 (8080, 18080)
+
+스프링 MVC @CrossOrigin
+* https://docs.spring.io/spring/docs/5.0.7.RELEASE/spring-framework-reference/web.html#mvc-cors
+
+* @Controller나 @RequestMapping에 추가하거나
+  * 컨트롤러나 컨트롤러의 메소드에 @CrossOrigin(origins = "http://localhost:18080)
+
+* WebMvcConfigurer 사용해서 글로벌 설정
+  * WebConfig 클래스를 만들어 설정 
+```java
+@Configuration // 글로벌 설정 
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/hello") // 또는 /** (전부다) 도 가능 
+                .allowedOrigins("http://localhost:18080")
+    }
+}
+```
