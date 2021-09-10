@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,6 +22,7 @@ import java.io.PrintWriter;
 
 @SpringBootApplication
 //@EnableConfigurationProperties(YoungsooProperties.class)
+@RestController
 public class SpringbootApplication {
 
 	public static void main(String[] args) throws LifecycleException {

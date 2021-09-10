@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SampleController {
 
-    @GetMapping("/hello")
+    @GetMapping("/hello22")
     public String hello() {
         throw new SampleException();
     }
